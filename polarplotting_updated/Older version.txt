@@ -1,0 +1,94 @@
+Polar plot :
+
+% Ask user to browse and select an Excel file
+[filename, filepath] = uigetfile('*.xls', 'Select the Excel file');
+if isequal(filename,0)
+    disp('User selected Cancel');
+    return;
+else
+    disp(['User selected ', fullfile(filepath, filename)]);
+end
+
+% Read the Excel file
+[num, txt, raw] = xlsread(fullfile(filepath, filename));
+
+% Extract data
+angles = num(:);  % Flatten the numeric data into a column vector
+
+% Create a figure for the polar plot
+figure;
+
+% Plot iteratively with a delay of 1 second for each value
+for i = 1:8:numel(angles)
+    % Clear the plot after every set of 8 values
+    if i > 1
+        clf; % Clear the current figure
+    end
+    
+    % Create axes for the polar plot
+    ax = axes;
+    hold(ax, 'on');
+    
+    % Plot the new set of 8 values
+    for j = i:min(i+7, numel(angles))
+        % Plot the point
+        polar(deg2rad(angles(j)), 1, 'bo');
+        if j > i
+            % Connect the current point with the previous point using a dotted line
+            line([deg2rad(angles(j-1)), deg2rad(angles(j))], [1, 1], 'LineStyle', '--', 'Color', 'k');
+        end
+        pause(1);  % Delay of 1 second between each value
+    end
+    
+    % Delay of 1 second after plotting each set of 8 values
+    pause(1); 
+end
+
+
+
+3d scatter plot :
+
+% Prompt user to select an Excel file
+[filename, pathname] = uigetfile('*.xlsx', 'Select an Excel file');
+fullpath = fullfile(pathname, filename);
+
+% Read the Excel file
+[num, txt, raw] = xlsread(fullpath);
+
+% Extract data from the table
+elevation = num(:, 1);
+azimuth = num(:, 2);
+time = num(:, 3);
+
+% Define time interval between each value
+time_interval = 2; % in seconds
+
+% Create scatter plot
+figure;
+scatter3(time(1), azimuth(1), elevation(1), 'filled');
+xlabel('Time (seconds)');
+ylabel('Azimuth');
+zlabel('Elevation');
+title('3D Scatter Plot');
+
+% Plot first point
+hold on;
+
+for i = 2:size(num, 1)
+    % Plot current data point
+    scatter3(time(i), azimuth(i), elevation(i), 'filled');
+    
+    % Connect the previous point with the current point using a dotted line
+    line([time(i-1), time(i)], [azimuth(i-1), azimuth(i)], [elevation(i-1), elevation(i)], 'LineStyle', '--', 'Color', 'k');
+    
+    % Set axis limits
+    xlim([0 20]);
+    ylim([0 360]);
+    zlim([0 360]);
+    
+    % Pause for time_interval seconds
+    pause(time_interval);
+end
+
+hold off;
+
