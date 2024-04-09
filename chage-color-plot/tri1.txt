@@ -1,0 +1,56 @@
+plot each value after interval of 2sec with the same color 
+unless value of key(i) is same.
+change the color if its different
+:
+
+% Prompt user to select an Excel file
+[filename, pathname] = uigetfile('*.xlsx', 'Select an Excel file');
+fullpath = fullfile(pathname, filename);
+
+% Read the Excel file
+data = readmatrix(fullpath);
+
+% Extract data from the table
+elevation = data(:, 1);
+azimuth = data(:, 2);
+time = data(:, 3);
+key_column = data(:, 4); % Column 4 as key column
+
+% Define time interval between each value
+time_interval = 2; % in seconds
+
+% Create scatter plot
+figure;
+scatter3(time(1), azimuth(1), elevation(1), 'filled', 'MarkerFaceColor', 'r');
+xlabel('Time (seconds)');
+ylabel('Azimuth');
+zlabel('Elevation');
+title('3D Scatter Plot');
+hold on;
+
+prev_key_value = key_column(1); % Store the previous key value
+
+for i = 2:size(data, 1)
+    % Plot current data point
+    scatter3(time(i), azimuth(i), elevation(i), 'filled', 'MarkerFaceColor', 'r');
+    
+    % Check if key value has changed
+    if key_column(i) ~= prev_key_value
+        % Change the color
+        set(findobj(gca, 'Type', 'scatter'), 'MarkerFaceColor', 'b'); % Change color to blue
+        prev_key_value = key_column(i); % Update previous key value
+    end
+    
+    % Connect the previous point with the current point using a dotted line
+    line([time(i-1), time(i)], [azimuth(i-1), azimuth(i)], [elevation(i-1), elevation(i)], 'LineStyle', '--', 'Color', 'k');
+    
+    % Set axis limits
+    xlim([min(time) max(time)]);
+    ylim([min(azimuth) max(azimuth)]);
+    zlim([min(elevation) max(elevation)]);
+    
+    % Pause for time_interval seconds
+    pause(time_interval);
+end
+
+hold off;
